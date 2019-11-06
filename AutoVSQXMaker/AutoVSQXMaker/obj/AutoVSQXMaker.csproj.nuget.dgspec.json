@@ -1,0 +1,63 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\KEEL\\Documents\\GitHub\\AutoSinger\\AutoVSQXMaker\\AutoVSQXMaker\\AutoVSQXMaker.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\KEEL\\Documents\\GitHub\\AutoSinger\\AutoVSQXMaker\\AutoVSQXMaker\\AutoVSQXMaker.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\KEEL\\Documents\\GitHub\\AutoSinger\\AutoVSQXMaker\\AutoVSQXMaker\\AutoVSQXMaker.csproj",
+        "projectName": "AutoVSQXMaker",
+        "projectPath": "C:\\Users\\KEEL\\Documents\\GitHub\\AutoSinger\\AutoVSQXMaker\\AutoVSQXMaker\\AutoVSQXMaker.csproj",
+        "packagesPath": "C:\\Users\\KEEL\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\KEEL\\Documents\\GitHub\\AutoSinger\\AutoVSQXMaker\\AutoVSQXMaker\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\KEEL\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.0": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.0": {
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            },
+            "Microsoft.WindowsDesktop.App.WPF": {
+              "privateAssets": "none"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\3.0.100\\RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,136 @@
+<vsq4></vsq4> root
+	<vsq4 xmlns="http://www.yamaha.co.jp/vocaloid/schema/vsq4/"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.yamaha.co.jp/vocaloid/schema/vsq4/ vsq4.xsd">
+	</vsq4>
+	こう
+	子ノード
+
+<vender><![CDATA[Yamaha corporation]]></vender>
+	こう
+	子ノード	なし
+
+<version><![CDATA[4.0.0.3]]></version>
+	ここはバージョン次第
+	子ノード	なし
+
+<vVoiceTable>			#バージョン3と同じなら歌手テーブル
+		<vVoice>			#命名が断片的過ぎてよくわかんねぇな
+			<bs>0</bs>
+			<pc>3</pc>
+			<id><![CDATA[BKLM76B8EHWSSKBB]]></id>			#これ何のIDなの
+			<name><![CDATA[Yukari_Lin]]></name>			#ゆかりさんの名前っぽいけどLinって何
+			<vPrm>			#VoiceParamater？子ノードは命名省略しすぎだろ切り飛ばしてちゃんと動くか確認
+				<bre>0</bre>
+				<bri>0</bri>
+				<cle>0</cle>
+				<gen>0</gen>
+				<ope>0</ope>
+			</vPrm>
+	</vVoice>
+</vVoiceTable>
+
+<mixer>			#ミキサ全体...って何volはvolume?
+	<masterUnit>
+		<oDev>0</oDev>
+		<rLvl>0</rLvl>
+		<vol>0</vol>
+	</masterUnit>
+	<vsUnit>
+		<tNo>0</tNo>
+		<iGin>0</iGin>
+		<sLvl>-898</sLvl>
+		<sEnable>0</sEnable>
+		<m>0</m>
+		<s>0</s>
+		<pan>64</pan>
+		<vol>0</vol>
+	</vsUnit>
+	<monoUnit>
+		<iGin>0</iGin>
+		<sLvl>-898</sLvl>
+		<sEnable>0</sEnable>
+		<m>0</m>
+		<s>0</s>
+		<pan>64</pan>
+		<vol>0</vol>
+	</monoUnit>
+	<stUnit>
+		<iGin>0</iGin>
+		<m>0</m>
+		<s>0</s>
+		<vol>-129</vol>
+	</stUnit>
+</mixer>
+
+<masterTrack>			#マスタートラック
+	<seqName><![CDATA[Untitled0]]></seqName>
+	<comment><![CDATA[New VSQ File]]></comment>
+	<resolution>480</resolution>			#多分時間解像度
+	<preMeasure>4</preMeasure>			#なんすかこれ
+	<timeSig><m>0</m><nu>4</nu><de>4</de></timeSig>			#timeSigniture？なにそれは
+	<tempo><t>0</t><v>12000</v></tempo>			#テンポってなんだよ
+</masterTrack>
+
+<vsTrack>
+	<tNo>0</tNo>			#歌唱トラックナンバー
+	<name><![CDATA[Track]]></name>			#これいるかな
+	<comment><![CDATA[Track]]></comment>			#これいらなさそう
+	<vsPart>
+		<t>7680</t>			#何の時間これ
+		<playTime>61440</playTime>			#これも何の時間なの
+		<name><![CDATA[ゆか凛]]></name>			#これボカロ4のゆかりさんだわ
+		<comment><![CDATA[New Musical Part]]></comment>			#これいらなさそう
+		<sPlug>
+			<id><![CDATA[ACA9C502-A04B-42b5-B2EB-5CEA36D16FCE]]></id>
+			<name><![CDATA[VOCALOID2 Compatible Style]]></name>
+			<version><![CDATA[3.0.0.1]]></version>
+		</sPlug>
+		<pStyle>
+			<v id="accent">50</v>
+			<v id="bendDep">8</v>
+			<v id="bendLen">0</v>
+			<v id="decay">50</v>
+			<v id="fallPort">0</v>
+			<v id="opening">127</v>
+			<v id="risePort">0</v>
+		</pStyle>
+		<singer>
+			<t>0</t>
+			<bs>0</bs>
+			<pc>3</pc>
+		</singer>
+		<note>			#これノーツ
+			<t>0</t>			#開始時間
+			<dur>480</dur>			#ノーツの長さ
+			<n>60</n>			#音階　MIDI表記
+			<v>64</v>			#MIDIのVelocityっぽい 要は音量だけど機能してない？
+			<y><![CDATA[ド]]></y>			#なんか平仮名かカタカナ
+			<p><![CDATA[d o]]></p>			#VOCALOIDの音素　sound_elements.txt参照
+			<nStyle>			#ここは発音設定っぽい
+				<v id="accent">50</v>
+				<v id="bendDep">0</v>
+				<v id="bendLen">0</v>
+				<v id="decay">50</v>
+				<v id="fallPort">0</v>
+				<v id="opening">127</v>
+				<v id="risePort">0</v>
+				<v id="vibLen">0</v>
+				<v id="vibType">0</v>
+			</nStyle>
+		</note>
+		<plane>0</plane>			#謎
+	</vsPart>
+</vsTrack>
+
+<monoTrack>
+</monoTrack>			#これいる？
+
+<stTrack>
+</stTrack>			#これいる？
+
+<aux>
+	<id><![CDATA[AUX_VST_HOST_CHUNK_INFO]]></id>
+	<content><![CDATA[VlNDSwAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=]]></content>
+</aux>			#なんすかこれ
+
