@@ -77,8 +77,8 @@
 	<name><![CDATA[Track]]></name>			#これいるかな
 	<comment><![CDATA[Track]]></comment>			#これいらなさそう
 	<vsPart>
-		<t>7680</t>			#何の時間これ
-		<playTime>61440</playTime>			#これも何の時間なの
+		<t>7680</t>			#トラックの開始時間？
+		<playTime>61440</playTime>			#トラックの最大時間っぽい　固定？
 		<name><![CDATA[ゆか凛]]></name>			#これボカロ4のゆかりさんだわ
 		<comment><![CDATA[New Musical Part]]></comment>			#これいらなさそう
 		<sPlug>
@@ -100,6 +100,7 @@
 			<bs>0</bs>
 			<pc>3</pc>
 		</singer>
+		<cc><t>242</t><v id="P">126</v></cc> #パラメータコントロール　詳細はV_Param.md参照
 		<note>			#これノーツ
 			<t>0</t>			#開始時間
 			<dur>480</dur>			#ノーツの長さ
