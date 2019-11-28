@@ -25,15 +25,15 @@ def calc_volume(data):
 	v = v / len(data)
 	return v
 
-def EWMA_Outlier_Check(target):  # 指数加重移動平均外れ値修正
+def EWMA_Outlier_Check(target,ewm_span):  # 指数加重移動平均外れ値修正
 	target = pd.Series(target)
-	ewm_mean = target.ewm(span=90).mean()
-	ewm_std = target.ewm(span=90).std()
+	ewm_mean = target.ewm(span=ewm_span).mean()
+	ewm_std = target.ewm(span=ewm_span).std()
 	return np.array(list(map(lambda t, mean, std: t if abs(mean - t) < std * 2 else mean, target, ewm_mean, ewm_std)))
 
-def EWMA_Filter(target):
+def EWMA_Filter(target,ewm_span):
 	target = pd.Series(target)
-	ewm_mean = target.ewm(span=90).mean()
+	ewm_mean = target.ewm(span=ewm_span).mean()
 	return np.array(list(map(lambda t, mean: mean, target, ewm_mean)))
 
 def read_lab_file(path):
@@ -47,10 +47,8 @@ def read_lab_file(path):
 	return time_and_soundele
 
 def lab_to_graph(lab_list):
-	graph_array = []
 	lab_vowel = []
 	for i in range(len(lab_list)):
-		print(lab_list[i][2] == "silE")
 		if lab_list[i][2] is "a" or lab_list[i][2] is "i" or lab_list[i][2] is "u" or lab_list[i][2] is "e" or lab_list[i][2] is "o":
 			element = 0
 			if lab_list[i][2] is "a":
@@ -63,45 +61,26 @@ def lab_to_graph(lab_list):
 				element = 2
 			elif lab_list[i][2] is "o":
 				element = 1
-			lab_vowel.append([lab_list[i-1][0],element])
+			if lab_list[i - 1][2] is "a" or lab_list[i - 1][2] is "i" or lab_list[i - 1][2] is "u" or lab_list[i - 1][2] is "e" or lab_list[i - 1][2] is "o":
+				lab_vowel.append([lab_list[i][0],element])
+			else:
+				lab_vowel.append([lab_list[i-1][0],element])
 			lab_vowel.append([lab_list[i][1], element])
-		elif lab_list[i][2] is "silB" or lab_list[i][2] is "silE":
-			print("sil")
+		elif lab_list[i][2] == "silB" or lab_list[i][2] == "silE":
 			lab_vowel.append([lab_list[i][0],0])
 			lab_vowel.append([lab_list[i][1], 0])
+	return np.array(lab_vowel)
+
+def f0_change_check(diff):
+	#ざっくり書いてみる
 	
-	print(lab_vowel)
-	import sys
-	sys.exit(0)
-
-	for e in lab_list:
-		if e[2] is "a" or e[2] is "i" or e[2] is "u" or e[2] is "e" or e[2] is "o":
-			element = 0
-			if e[2] is "a":
-				element = 5
-			elif e[2] is "i":
-				element = 4
-			elif e[2] is "u":
-				element = 3
-			elif e[2] is "e":
-				element = 2
-			elif e[2] is "o":
-				element = 1
-			graph_array.append([e[1], element])
-		elif e[2] is "silB" or e[2] is "silE":
-			graph_array.append([e[0],0])
-			graph_array.append([e[1],0])
-		else:
-			graph_array.append([e[0]])
-	return graph_array
-
-
+	return diff
 
 WAV_FILE = r"..\AnalyzeSystem\datas\STONES_ana.wav"
 LAB_FILE = r"C:\Users\KEEL\Documents\GitHub\AutoSinger\AnalyzeSystem\segmentation-kit\wav\STONES.lab"
 
 Sound_Element =  read_lab_file(LAB_FILE)
-lab_to_graph(Sound_Element)
+Time_And_SElement = lab_to_graph(Sound_Element)
 
 fs, data = wavfile.read(WAV_FILE)
 pm_times, pm, f0_times, f0, corr = pyreaper.reaper_internal(data[:, 0].copy(order='C'), fs)
@@ -126,23 +105,32 @@ for i in range((int)(len(data)/(calc_len*44100))):
 		formants[i] = [0, 0, 0]
 		f_mark[i]=0
 
-f0_diff = np.diff(f0)
 f1_diff = np.diff(formants[:, 0])
 f2_diff = np.diff(formants[:, 1])
-#外れ値除外処理
 
-f0_EWMA = EWMA_Outlier_Check(f0)
-f1_EWMA = EWMA_Outlier_Check(formants[:,0])
-f2_EWMA = EWMA_Outlier_Check(formants[:,1])
+#EWMAで外れ値除外する
+
+f0_EWMA = EWMA_Filter(f0,10)
+f1_EWMA = EWMA_Filter(formants[:,0],10)
+f2_EWMA = EWMA_Filter(formants[:, 1], 10)
+
+f0_EWMA_30 = EWMA_Filter(f0, 30)
+f0_EWMA_50 = EWMA_Filter(f0, 50)
+
+f0_diff = np.diff(f0_EWMA)
 
 f_times = np.arange(0.0, len(data) / 44100, calc_len)
 
 plt.subplot(3,1,1)
 plt.plot(f_times,f_mark*100)
 plt.plot(f0_times, f0_EWMA)
+plt.plot(f0_times, f0_EWMA_30)
+plt.plot(f0_times, f0_EWMA_50)
+plt.plot(f0_times[1:], f0_diff)
 
 plt.subplot(3, 1, 2)
 plt.plot(f_times,f_mark*100)
+plt.plot(Time_And_SElement[:,0],Time_And_SElement[:,1]*100)
 plt.plot(f_times, f1_EWMA)
 # plt.plot(f0_times, f0)
 # plt.plot(f_times,formants[:,:2])
