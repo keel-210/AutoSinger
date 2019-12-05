@@ -1,12 +1,10 @@
 import numpy as np
 from scipy.io import wavfile
-import scipy.signal
-from levinson_durbin import autocorr, LevinsonDurbin
-import formant
-import matplotlib.pyplot as plt
-from scipy import interpolate
 import pyreaper
 import pandas as pd
+import re
+import vsq4_writer
+import phonetic_symbol
 
 def EWMA_Outlier_Check(target,ewm_span):  # 指数加重移動平均外れ値修正
 	target = pd.Series(target)
@@ -34,34 +32,38 @@ def read_lab_file(path): #labファイルを配列に
 		tas = i.split(" ")
 		if len(tas) == 3:
 			time_and_soundele.append([float(tas[0]), float(tas[1]), tas[2]])
+	f.close()
 	return time_and_soundele
 
-def lab_to_graph(lab_list):#labファイルから母音音素を数値化
-	lab_vowel = []
-	for i in range(len(lab_list)):
-		if lab_list[i][2] is "a" or lab_list[i][2] is "i" or lab_list[i][2] is "u" or lab_list[i][2] is "e" or lab_list[i][2] is "o":
-			element = 0
-			if lab_list[i][2] is "a":
-				element = 5
-			elif lab_list[i][2] is "i":
-				element = 4
-			elif lab_list[i][2] is "u":
-				element = 3
-			elif lab_list[i][2] is "e":
-				element = 2
-			elif lab_list[i][2] is "o":
-				element = 1
-			if lab_list[i - 1][2] is "a" or lab_list[i - 1][2] is "i" or lab_list[i - 1][2] is "u" or lab_list[i - 1][2] is "e" or lab_list[i - 1][2] is "o":
-				lab_vowel.append([lab_list[i][0],element])
-			else:
-				lab_vowel.append([lab_list[i-1][0],element])
-			lab_vowel.append([lab_list[i][1], element])
-		elif lab_list[i][2] == "silB" or lab_list[i][2] == "silE":
-			lab_vowel.append([lab_list[i][0],0])
-			lab_vowel.append([lab_list[i][1], 0])
-	return np.array(lab_vowel)
-def make_se_list():  #vsq4用の音素リストを作成する
-	
+def read_txt_file(path):
+	f = open(path,encoding="UTF-8")
+	l = f.read()
+	l= [i for i in l]
+	return l
+
+def lab_to_ele(lab_list,txt_list):
+	lab_vowel = np.array(lab_list)[:, 2]
+	lab_string = ""
+	for s in lab_vowel[1:-1]:
+		lab_string += s + " "
+	lab_vowel = re.split("(?<=[aiueo])", lab_string)
+	lab_vowel = [phonetic_symbol.symbol4VOCALOID(l[1:]) if l[0] == " " else phonetic_symbol.symbol4VOCALOID(l) for l in lab_vowel if l != ""]
+	print(lab_vowel)
+	ele_list = [[t,l] for (l,t) in zip(lab_vowel, txt_list)]
+	return np.array(ele_list)
+
+def make_se_list(se_segment,se_time,se_ele):  #vsq4用の音素リストを作成する
+	temp_i = 0
+	SE_List = []
+	for i in range(len(se_segment)):
+		if (temp_i == 0 and se_segment[i] == 1) or (temp_i == 1 and se_segment[i] == 0):
+			SE_List.append(se_time[i])
+		temp_i = se_segment[i]
+	t = [SE_List[idx:idx + 2] for idx in range(0,len(SE_List), 2)]
+	SoundElement_And_Time = []
+	for (i,e) in zip(t,se_ele):
+		SoundElement_And_Time.append([i[0], i[1], e[0], e[1]])
+	return SoundElement_And_Time
 
 def needle_remover(l,needle_size): #突出値除外
 	for i in range(len(l) - (needle_size + 2) + 1):
@@ -89,52 +91,38 @@ def SoundElement_process(diff, mark):
 	return np.array(se_list)
 
 def make():
-	Sound_Element =  read_lab_file(LAB_FILE)
-	Time_And_SElement = lab_to_graph(Sound_Element)
+	Sound_Element = read_lab_file(LAB_FILE)
+	ele_kana = read_txt_file(TXT_FILE)
+	print(ele_kana)
+	ele_list = lab_to_ele(Sound_Element,ele_kana)
 
 	fs, data = wavfile.read(WAV_FILE)
 	pm_times, pm, f0_times, f0, corr = pyreaper.reaper_internal(data[:, 0].copy(order='C'), fs)
 	calc_len = 0.005
 	f_mark =np.empty((int)(len(data)/(calc_len*44100)))
-	formants = np.empty(((int)(len(data)/(calc_len*44100)),3))
 	data = data / 32768
-	temp_f2 = 0
+
 	for i in range((int)(len(data)/(calc_len*44100))):
 		start_time = i*calc_len
-		audio = data[(int)(start_time*44100):(int)(start_time*44100+calc_len*44100),0].astype(np.float)
-		f = formant.calc_formant(audio, fs)
-		if calc_volume(audio) > 0.05:
-			formants[i] = [f[0], f[1] if len(f) > 2 else temp_f2, f[2] if len(f) > 3 else 0]
-			if f[1] != 0:
-				temp_f2 = f[1]
-			f_mark[i]=1
-		else:
-			formants[i] = [0, 0, 0]
-			f_mark[i]=0
-
+		audio = data[(int)(start_time * 44100):(int)(start_time * 44100 + calc_len * 44100), 0].astype(np.float)
+		f_mark[i] = 1 if calc_volume(audio) > 0.05 else 0
 	f_mark = needle_remover(f_mark,4)
-	f1_diff = np.diff(formants[:, 0])
-	f2_diff = np.diff(formants[:, 1])
-
 	#EWMAで外れ値除外する
 
 	f0_EWMA = EWMA_Filter(f0,10)
-	f1_EWMA = EWMA_Filter(formants[:,0],10)
-	f2_EWMA = EWMA_Filter(formants[:, 1], 10)
-
-	f0_EWMA_30 = EWMA_Filter(f0, 30)
-	f0_EWMA_50 = EWMA_Filter(f0, 50)
 
 	f0_diff = np.diff(f0_EWMA)
 	f0_change = f0_change_check(f0_diff)
 
-	f_times = np.arange(0.0, len(data) / 44100, calc_len)
 	#適当に生成してみるvsq4
 	se_list = SoundElement_process(f0_change,f_mark[1:-2])
-	
+	vsq4_list = make_se_list(f_mark[1:-2] - se_list, f0_times[1:], ele_list)
+	print(vsq4_list)
+	vsq4_writer.write_vsq4(VSQX_FILE,vsq4_list)
 
 WAV_FILE = r"..\AnalyzeSystem\datas\STONES_ana.wav"
 LAB_FILE = r"C:\Users\KEEL\Documents\GitHub\AutoSinger\AnalyzeSystem\segmentation-kit\wav\STONES.lab"
-
+TXT_FILE = r"C:\Users\KEEL\Documents\GitHub\AutoSinger\AnalyzeSystem\segmentation-kit\wav\STONES.txt"
+VSQX_FILE = r"C:\Users\KEEL\Documents\GitHub\AutoSinger\AnalyzeSystem\test1_vsqx.vsqx"
 if __name__ == "__main__":
 	make()

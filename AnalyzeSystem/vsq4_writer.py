@@ -8,7 +8,7 @@ test_path = r"C:\Users\KEEL\Documents\GitHub\AutoSinger\AnalyzeSystem\test_vsqx.
 vsq4_namespace = "http://www.yamaha.co.jp/vocaloid/schema/vsq4/"
 vsq4_xsi = "http://www.w3.org/2001/XMLSchema-instance"
 
-def write_vsq4(path, SE_list,pitch_List):
+def write_vsq4(path, SE_list,pitch_List = []):
 	ET.register_namespace("ns", vsq4_namespace)
 	ET.register_namespace("xsi", vsq4_xsi)
 	root = read_vsqx_root(base_path)
@@ -16,7 +16,7 @@ def write_vsq4(path, SE_list,pitch_List):
 	for p in pitch_List:
 		add_cc(vsP, p[0], "P", p[1])
 	for se in SE_list:
-		add_note(vsP, se[0] * 480, se[1] * 480, se[2], se[3])
+		add_note(vsP, int(se[0] * 480), int((se[1]-se[0]) * 480), se[2], se[3])
 	write_xml(root, path)
 	
 def test_write():
