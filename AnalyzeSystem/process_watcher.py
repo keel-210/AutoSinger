@@ -48,7 +48,8 @@ def needle_remover_binary(l,needle_size): #突出値除外
 			l[i + 1:i + needle_size+1] = [(l[i] + l[i + needle_size + 1]) / 2]*needle_size
 	return l
 def f0_change_check(diff):
-	change_list = [0 if abs(d) <= 5 else 1 for d in diff]
+	change_list = [0 if abs(d) == 0 else 1 if abs(d) <= 2 else 2 for d in diff]
+	
 	needle_remover_binary(change_list,1)
 	return np.array(change_list)
 
